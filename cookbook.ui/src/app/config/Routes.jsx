@@ -1,11 +1,12 @@
 import React from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Switch, withRouter } from 'react-router-dom'
 import HomePage from '../../features/home/HomePage'
 import { Container } from 'semantic-ui-react'
 import RecipeDashboard from '../../features/recipes/dashboard/RecipeDashboard'
-import NavBar from '../../features/NavBar'
+import NavBar from '../../features/nav/NavBar'
 import RecipeDetails from '../../features/recipes/details/RecipeDetails'
 import RecipeForm from '../../features/recipes/form/RecipeForm'
+import NotFound from '../layout/NotFound'
 
 const Routes = ({ location }) => {
     return (
@@ -20,12 +21,14 @@ const Routes = ({ location }) => {
                             <Switch>
                                 <Route exact path='/' component={HomePage} />
                                 <Route exact path='/recipes' component={RecipeDashboard} />
-                                <Route exact path='/recipes/:id' component={RecipeDetails} />
-                                {/* <Route
-                                    key={location.key}
+                                <Route path='/recipes/:id' component={RecipeDetails} />
+                                <Route key={location.key}
                                     path={['/createRecipe', '/manage/:id']}
                                     component={RecipeForm}
-                                /> */}
+                                />
+                                <Route
+                                    component={NotFound}
+                                />
                             </Switch>
                         </Container>
                     </>
@@ -36,4 +39,4 @@ const Routes = ({ location }) => {
     )
 }
 
-export default Routes
+export default withRouter(Routes);

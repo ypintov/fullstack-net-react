@@ -1,5 +1,6 @@
 import React from 'react'
 import { Segment, Container, Header, Icon, Button } from 'semantic-ui-react'
+import { Link } from 'react-router-dom'
 
 const HomePage = () => {
     return <Segment inverted textAlign='center' vertical className='masthead'>
@@ -9,7 +10,8 @@ const HomePage = () => {
             </Header>
             <Header as='h2' inverted content='Welcome back' />
             {/* TODO: Add routing */}
-            <Button size='huge' inverted content='Go To Recipes' />
+            <Button as={Link} to='/recipes'
+                size='huge' inverted content='Go To Recipes' />
         </Container>
     </Segment>
 }
