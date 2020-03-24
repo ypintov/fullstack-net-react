@@ -6,6 +6,7 @@ using API.Application.Abstract;
 using API.Infrastructure.Repository;
 using API.Middleware;
 using API.Persistence;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using AutoMapper;
 
 namespace API
 {
@@ -39,8 +41,13 @@ namespace API
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
                 });
             });
+            // Adding Automapper service
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             services.AddScoped<IRecipeRepository, RecipeRepository>();
-            services.AddControllers();
+            services.AddControllers()
+                // Adding FluentVlaidation
+                .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Startup>()); ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

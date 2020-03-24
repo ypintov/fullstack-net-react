@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Application.Abstract;
-using API.Application.Contracts;
+using API.Application.Contracts.Response;
 using API.Application.Contracts.Request;
 using API.Domain;
 using Microsoft.AspNetCore.Mvc;
 using API.Application.Errors;
 using API.Application.Constants;
+using AutoMapper;
 
 namespace API.Controllers
 {
@@ -18,9 +19,11 @@ namespace API.Controllers
     public class RecipesController : ControllerBase
     {
         private readonly IRecipeRepository repository;
-        public RecipesController(IRecipeRepository repository)
+        private readonly IMapper _mapper;
+        public RecipesController(IRecipeRepository repository, IMapper mapper)
         {
             this.repository = repository;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -28,7 +31,7 @@ namespace API.Controllers
         {
 
             var recipes = await repository.GetRecipes();
-            var recipeList = new List<RecipeResponse>();
+            /* var recipeList = new List<RecipeResponse>();
 
             foreach (var recipe in recipes)
             {
@@ -43,7 +46,9 @@ namespace API.Controllers
                 };
                 recipeList.Add(recipeResponse);
             }
+            */
 
+            var recipeList = _mapper.Map<IEnumerable<RecipeResponse>>(recipes);
             return Ok(recipeList);
         }
 
@@ -53,7 +58,7 @@ namespace API.Controllers
             var recipe = await repository.GetRecipe(id);
             if (recipe == null)
                 throw new RestException(HttpStatusCode.NotFound, new { Recipe = GlobalConstants.NOT_FOUND });
-            var recipeResponse = new RecipeResponse
+            /* var recipeResponse = new RecipeResponse
             {
                 Id = recipe.Id,
                 Title = recipe.Title,
@@ -61,21 +66,25 @@ namespace API.Controllers
                 Directions = recipe.Directions,
                 Ingredients = recipe.Ingredients,
                 NutritionInfo = recipe.NutritionInfo
-            };
+            }; */
+
+            var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
             return recipeResponse;
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRecipeRequest request)
         {
-            var recipe = new Recipe
+          /*   var recipe = new Recipe
             {
                 Title = request.Title,
                 Summary = request.Summary,
                 Directions = request.Directions,
                 Ingredients = request.Ingredients,
                 NutritionInfo = request.NutritionInfo
-            };
+            }; */
+
+            var recipe = _mapper.Map<Recipe>(request);
 
             repository.Add(recipe);
 
@@ -93,11 +102,13 @@ namespace API.Controllers
             if (recipe == null)
                 throw new RestException(HttpStatusCode.NotFound, new { Recipe = GlobalConstants.NOT_FOUND });
 
-            recipe.Title = request.Title;
+           /*  recipe.Title = request.Title;
             recipe.Summary = request.Summary;
             recipe.Directions = request.Directions;
             recipe.Ingredients = request.Ingredients;
-            recipe.NutritionInfo = request.NutritionInfo;
+            recipe.NutritionInfo = request.NutritionInfo; */
+
+            _mapper.Map(request, recipe);
 
             if (await repository.SaveAll())
                 return Ok();
@@ -120,7 +131,7 @@ namespace API.Controllers
             repository.Delete(recipe);
 
             if (await repository.SaveAll())
-                return NoContent();
+                return Ok();
 
             throw new Exception(GlobalConstants.ERROR_SAVING_CHANGES);
         }
