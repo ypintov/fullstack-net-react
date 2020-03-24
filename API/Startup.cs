@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API.Application.Abstract;
 using API.Infrastructure.Repository;
+using API.Middleware;
 using API.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -49,6 +50,8 @@ namespace API
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             //app.UseHttpsRedirection();
 
