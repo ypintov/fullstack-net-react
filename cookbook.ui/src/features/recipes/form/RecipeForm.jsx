@@ -6,6 +6,7 @@ import TextInput from '../../../app/common/form/TextInput'
 import TextAreaInput from '../../../app/common/form/TextAreaInput'
 import RecipeService from '../../../app/api/recipeService'
 import { toast } from 'react-toastify'
+import PropTypes from 'prop-types'
 
 const RecipeForm = ({ match, history }) => {
 
@@ -130,4 +131,8 @@ const RecipeForm = ({ match, history }) => {
     </Grid>;
 }
 
+RecipeForm.propTypes = {
+    match: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired
+}
 export default RecipeForm
