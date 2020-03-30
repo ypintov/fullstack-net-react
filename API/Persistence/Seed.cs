@@ -2,13 +2,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Persistence
 {
     public class Seed
     {
-        public static async Task SeedData(DataContext context)
+        public static async Task SeedData(DataContext context, UserManager<AppUser> userManager)
         {
+
+            if (!userManager.Users.Any())
+            {
+                var users = new List<AppUser>()
+                {
+                    new AppUser{
+                        DisplayName = "Yojan Pinto",
+                        UserName = "ypinto",
+                        Email = "ypinto@test.com"
+                    },
+                    new AppUser{
+                        DisplayName = "Jane Doe",
+                        UserName = "jane.doe",
+                        Email = "jdoe@test.com"
+                    },
+                    new AppUser{
+                        DisplayName = "John DOe",
+                        UserName = "jhon.doe",
+                        Email = "jhon@test.com"
+                    }
+                };
+
+                foreach (var user in users)
+                {
+                    await userManager.CreateAsync(user, "P@ssw0rd");
+                }
+
+            };
+
+
             if (!context.Recipes.Any())
             {
                 var recipes = new List<Recipe>{

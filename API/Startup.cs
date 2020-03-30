@@ -17,6 +17,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using API.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using API.Application.Constants;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using API.Infrastructure.Security;
+using API.Infrastructure.Services;
 
 namespace API
 {
@@ -43,11 +53,44 @@ namespace API
             });
             // Adding Automapper service
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddControllers(opt => {
+                // Add Authorization Policy for Endpoints
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                opt.Filters.Add(new AuthorizeFilter(policy));
+             })
+             // Adding FluentVlaidation
+                  .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Startup>());
 
+            var builder = services.AddIdentityCore<AppUser>();
+            var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+            identityBuilder.AddEntityFrameworkStores<DataContext>();
+
+            //  Add Login and Sign In Manager services
+            identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+
+            // Add JwtBearerToken configuration to use with appSettings
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(Configuration[GlobalConstants.TOKEN_KEY_SECTION]));
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opt =>
+                {
+                    opt.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = key,
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                        // To Handler token exp
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
+
+                 // Add services for dependency Injection
             services.AddScoped<IRecipeRepository, RecipeRepository>();
-            services.AddControllers()
-                // Adding FluentVlaidation
-                .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Startup>()); ;
+            services.AddScoped<IJwtGenerator, JwtGenerator>();
+            services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IIdentityService, IdentityService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
