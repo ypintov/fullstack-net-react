@@ -8,18 +8,24 @@ import { Router } from 'react-router-dom';
 import ScrollToTop from './app/layout/ScrollToTop';
 import { createBrowserHistory } from 'history';
 import 'react-toastify/dist/ReactToastify.min.css'
+import configureStore from './app/store/configureStore';
+import { Provider } from 'react-redux';
 
+const store = configureStore();
 
 const history = createBrowserHistory();
 
 const rootEl = document.getElementById('root');
 
 const app = (
-    <Router history={history}>
-        <ScrollToTop>
-            <App />
-        </ScrollToTop>
-    </Router>
+    <Provider store={store}>
+        <Router history={history}>
+            <ScrollToTop>
+                <App />
+            </ScrollToTop>
+        </Router>
+    </Provider>
+
 );
 
 ReactDOM.render(app, rootEl);

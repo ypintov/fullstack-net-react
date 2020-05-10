@@ -1,13 +1,23 @@
-import axios from "axios"
+import axios from 'axios'
 import { toast } from 'react-toastify'
-import history from "../..";
+import history from '../..'
+import { getJwt } from '../config/auth/credentialConfiguration'
 
 const http = axios.create({
     baseURL: 'http://localhost:5000/api'
-});
+})
+
+// To add token to the header with bearer schema
+http.interceptors.request.use(
+    (config) => {
+        const token = getJwt()
+        if (token) config.headers.Authorization = `Bearer ${token}`
+        return config
+    },
+    (error) => Promise.reject(error)
+)
 
 http.interceptors.response.use(undefined, (error) => {
-
     if (error.message === 'Network Error' && !error.response) {
         toast.error('Network error - make sure the API server is running')
     }
@@ -30,16 +40,13 @@ http.interceptors.response.use(undefined, (error) => {
     throw error.response
 })
 
-const responseBody = response => response.data;
+const responseBody = (response) => response.data
 
 const request = {
-    get: url => http.get(url).then(responseBody),
+    get: (url) => http.get(url).then(responseBody),
     post: (url, body) => http.post(url, body).then(responseBody),
     put: (url, body) => http.put(url, body).then(responseBody),
-    delete: url => http.delete(url).then(responseBody)
-
-};
-
-export default {
-    request
+    delete: (url) => http.delete(url).then(responseBody)
 }
+
+export default request

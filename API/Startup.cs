@@ -109,6 +109,10 @@ namespace API
 
             app.UseCors("CorsPolicy");
 
+            // For use Authentication and Authorization
+            // Add this line
+            app.UseAuthentication();
+            // By Default it comes with UseAuthentication
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
